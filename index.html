@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My 3D Global Map</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="map-container"></div>
+
+    <div id="info-box" class="hidden">
+        <button id="close-btn">X</button>
+        <div id="country-details">
+            <h2 id="country-name">Country Name</h2>
+            <img id="country-flag" src="" alt="Flag" width="100">
+            <p><strong>Language:</strong> <span id="lang"></span></p>
+            <p><strong>Population:</strong> <span id="pop"></span></p>
+            <p><strong>Timezone:</strong> <span id="tz"></span></p>
+            <p><strong>Prime Minister:</strong> <span id="pm">Fetching...</span></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
