@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My 3D Global Map</title>
+    <title>Modern 3D Interactive Map</title>
+    <script src="//unpkg.com/globe.gl"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="map-container"></div>
+    <div id="globeViz"></div>
 
-    <div id="info-box" class="hidden">
-        <button id="close-btn">X</button>
-        <div id="country-details">
+    <div id="info-card" class="hidden">
+        <div class="card-header">
+            <span id="close-btn">&times;</span>
+            <img id="country-flag" src="" alt="Flag">
             <h2 id="country-name">Country Name</h2>
-            <img id="country-flag" src="" alt="Flag" width="100">
-            <p><strong>Language:</strong> <span id="lang"></span></p>
-            <p><strong>Population:</strong> <span id="pop"></span></p>
-            <p><strong>Timezone:</strong> <span id="tz"></span></p>
-            <p><strong>Prime Minister:</strong> <span id="pm">Fetching...</span></p>
+        </div>
+        <div class="card-body">
+            <p><b>🗣 Language:</b> <span id="lang"></span></p>
+            <p><b>👥 Population:</b> <span id="pop"></span></p>
+            <p><b>⏰ Timezone:</b> <span id="tz"></span></p>
+            <p><b>🏛 Capital:</b> <span id="capital"></span></p>
+            <p><b>💰 Currency:</b> <span id="currency"></span></p>
         </div>
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>
