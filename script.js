@@ -1,100 +1,51 @@
-// ১. সীন (Scene), ক্যামেরা (Camera) এবং রেন্ডারার (Renderer) সেটআপ
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const world = Globe()
+  (document.getElementById('globeViz'))
+  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // রিয়েল টেক্সচার
+  .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')   // পাহাড়ি উঁচু-নিচু ভাব
+  .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')   // মহাকাশ ব্যাকগ্রাউন্ড
+  .lineHoverPrecision(0)
+  .polygonsData([]) // ডাটা পরে লোড হবে
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('map-container').appendChild(renderer.domElement);
+// দেশের বর্ডার লোড করা
+fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+  .then(res => res.json())
+  .then(countries => {
+    world.polygonsData(countries.features)
+      .polygonCapColor(() => 'rgba(200, 200, 200, 0.01)') // স্বচ্ছ বর্ডার
+      .polygonSideColor(() => 'rgba(0, 100, 0, 0.15)')
+      .polygonStrokeColor(() => '#111')
+      .polygonLabel(({ properties: d }) => `<b>${d.NAME}</b>`) // হোভার করলে নাম দেখাবে
+      .onPolygonClick(({ properties: d }) => {
+          fetchData(d.NAME); // ক্লিক করলে ডাটা আনবে
+      });
+  });
 
-// ২. গ্লোব বা পৃথিবী (Sphere) তৈরি করা
-const geometry = new THREE.SphereGeometry(5, 32, 32);
-const textureLoader = new THREE.TextureLoader();
-
-// পৃথিবীর ম্যাপের একটি ইমেজ টেক্সচার (ইন্টারনেট থেকে লোড হবে)
-const earthTexture = textureLoader.load('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
-const material = new THREE.MeshPhongMaterial({ map: earthTexture });
-const globe = new THREE.Mesh(geometry, material);
-scene.add(globe);
-
-// ৩. লাইট (Lighting) যোগ করা যাতে গ্লোব দেখা যায়
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
-
-const pointLight = new THREE.PointLight(0xffffff, 1);
-pointLight.position.set(10, 10, 10);
-scene.add(pointLight);
-
-camera.position.z = 12;
-
-// ৪. মাউস দিয়ে ঘোরানোর কন্ট্রোল (যদি তমি চাও)
-let isDragging = false;
-let previousMousePosition = { x: 0, y: 0 };
-
-document.addEventListener('mousedown', () => isDragging = true);
-document.addEventListener('mouseup', () => isDragging = false);
-document.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-        const deltaMove = { x: e.offsetX - previousMousePosition.x, y: e.offsetY - previousMousePosition.y };
-        globe.rotation.y += deltaMove.x * 0.01;
-        globe.rotation.x += deltaMove.y * 0.01;
-    }
-    previousMousePosition = { x: e.offsetX, y: e.offsetY };
-});
-
-// ৫. ক্লিক করলে দেশের তথ্য আনা (Raycaster ব্যবহার করে)
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-window.addEventListener('click', (event) => {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects([globe]);
-
-    if (intersects.length > 0) {
-        // এখানে আমরা একটি ডামি দেশের ডাটা দেখাচ্ছি (যেহেতু ৩ডি পয়েন্ট থেকে দেশ বের করা একটু জটিল)
-        // আসল প্রজেক্টে তুমি "Bangladesh" বা যেকোনো দেশের নাম দিয়ে API কল করতে পারো।
-        fetchCountryData("Bangladesh"); 
-    }
-});
-
-// ৬. REST Countries API থেকে তথ্য আনা
-async function fetchCountryData(countryName) {
+// API থেকে তথ্য আনা
+async function fetchData(countryName) {
     try {
-        const response = await fetch(`https://restcountries.com/v3.1/name/${countryName}`);
-        const data = await response.json();
-        const country = data[0];
+        const res = await fetch(`https://restcountries.com/v3.1/name/${countryName}?fullText=true`);
+        const [data] = await res.json();
 
-        // UI আপডেট করা
-        document.getElementById('info-box').classList.remove('hidden');
-        document.getElementById('country-name').innerText = country.name.common;
-        document.getElementById('country-flag').src = country.flags.png;
-        document.getElementById('lang').innerText = Object.values(country.languages).join(', ');
-        document.getElementById('pop').innerText = country.population.toLocaleString();
-        document.getElementById('tz').innerText = country.timezones[0];
-    } catch (error) {
-        console.error("Error fetching data:", error);
+        document.getElementById('country-name').innerText = data.name.common;
+        document.getElementById('country-flag').src = data.flags.png;
+        document.getElementById('lang').innerText = Object.values(data.languages).join(', ');
+        document.getElementById('pop').innerText = data.population.toLocaleString();
+        document.getElementById('tz').innerText = data.timezones[0];
+        document.getElementById('capital').innerText = data.capital ? data.capital[0] : 'N/A';
+        document.getElementById('currency').innerText = Object.values(data.currencies)[0].name;
+
+        document.getElementById('info-card').classList.remove('hidden');
+    } catch (err) {
+        console.log("Error fetching data", err);
     }
 }
 
-// ক্লোজ বাটন ফাংশনালিটি
-document.getElementById('close-btn').addEventListener('click', () => {
-    document.getElementById('info-box').classList.add('hidden');
-});
+// ক্লোজ বাটন
+document.getElementById('close-btn').onclick = () => {
+    document.getElementById('info-card').classList.add('hidden');
+};
 
-// ৭. এনিমেশন লুপ (Render Loop)
-function animate() {
-    requestAnimationFrame(animate);
-    if (!isDragging) globe.rotation.y += 0.002; // অটোমেটিক ঘুরবে
-    renderer.render(scene, camera);
-}
-animate();
-
-// উইন্ডো রিসাইজ হ্যান্ডেল করা
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-                        
+// অটো রোটেট এবং কন্ট্রোল
+world.controls().autoRotate = true;
+world.controls().autoRotateSpeed = 0.5;
+            
