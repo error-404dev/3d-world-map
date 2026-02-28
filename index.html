@@ -3,26 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern 3D Interactive Map</title>
-    <script src="//unpkg.com/globe.gl"></script>
+    <title>Pro 3D World Explorer</title>
+    <script src="https://unpkg.com/globe.gl"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="globeViz"></div>
 
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Search a country...">
+        <button id="search-btn">🔍</button>
+    </div>
+
+    <button id="mode-toggle">🌙 Night Mode</button>
+
     <div id="info-card" class="hidden">
-        <div class="card-header">
-            <span id="close-btn">&times;</span>
-            <img id="country-flag" src="" alt="Flag">
-            <h2 id="country-name">Country Name</h2>
-        </div>
-        <div class="card-body">
-            <p><b>🗣 Language:</b> <span id="lang"></span></p>
-            <p><b>👥 Population:</b> <span id="pop"></span></p>
-            <p><b>⏰ Timezone:</b> <span id="tz"></span></p>
-            <p><b>🏛 Capital:</b> <span id="capital"></span></p>
-            <p><b>💰 Currency:</b> <span id="currency"></span></p>
+        <span id="close-btn">&times;</span>
+        <div id="card-content">
+            <img id="flag" src="" alt="Flag">
+            <h2 id="name">Country</h2>
+            <div id="weather-info">
+                <p>☁️ <span id="temp">--</span>°C | <span id="weather-desc">Loading...</span></p>
+            </div>
+            <hr>
+            <div class="stats">
+                <p>🏙️ <b>Capital:</b> <span id="capital"></span></p>
+                <p>👨‍👩‍👧‍👦 <b>Population:</b> <span id="pop"></span></p>
+                <p>💰 <b>Currency:</b> <span id="curr"></span></p>
+            </div>
         </div>
     </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
